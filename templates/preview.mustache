@@ -1,0 +1,135 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_balancedgroups/preview
+
+    Proposed groups with their per-field balance, before anything is created.
+
+    Context variables required for this template:
+    * steps - HTML of the step indicator
+    * summary, meaning - text
+    * warnings, notes - lists of messages (text)
+    * groups - list of groups (name, size, members with name)
+    * fields - list of balance tables (label, kind, priority, score, notbalanced, columns, rows, overall)
+    * createlabel, problems, hasproblems, cancreate, nocapability, actionurl, sesskey, detailsurl, reseturl
+
+    Example context (json):
+    {
+        "steps": "",
+        "summary": "6 people in 2 groups of 3",
+        "meaning": "Proven within 5% of the best possible grouping.",
+        "hasmessages": true,
+        "warnings": [{"text": "Field 'City' has a single value; nothing to balance."}],
+        "notes": [],
+        "groups": [
+            {"name": "Group A", "size": 3, "members": [{"name": "Ana Diaz"}, {"name": "Bo Li"}, {"name": "Cy Ng"}]},
+            {"name": "Group B", "size": 3, "members": [{"name": "Di Fox"}, {"name": "Ed Ray"}, {"name": "Flo Su"}]}
+        ],
+        "fields": [{
+            "label": "Course total", "kind": "Numbers (equal averages)", "priority": 1, "score": "Balance score 92.0 / 100",
+            "notbalanced": false,
+            "columns": [{"name": "Group"}, {"name": "People counted"}, {"name": "Average"}],
+            "rows": [{"cells": [{"value": "Group A"}, {"value": "3"}, {"value": "71.50"}]}],
+            "overall": {"cells": [{"value": "Overall"}, {"value": "6"}, {"value": "71.00"}]}
+        }],
+        "createlabel": "Create these groups in the grouping \"Balanced groups\"",
+        "hasproblems": false,
+        "problems": [],
+        "cancreate": true,
+        "nocapability": false,
+        "actionurl": "https://example.com/local/balancedgroups/index.php?id=2&step=preview",
+        "sesskey": "abc",
+        "detailsurl": "https://example.com/local/balancedgroups/index.php?id=2&step=details",
+        "reseturl": "https://example.com/local/balancedgroups/index.php?id=2"
+    }
+}}
+<div class="local_balancedgroups-preview">
+    {{{steps}}}
+    <p class="lead">{{summary}}</p>
+    {{#meaning}}<p class="text-muted">{{#str}} solvernote, local_balancedgroups {{/str}} {{meaning}}</p>{{/meaning}}
+
+    {{#hasmessages}}
+    <div class="alert alert-warning">
+        <ul class="mb-0">
+            {{#warnings}}<li>{{text}}</li>{{/warnings}}
+            {{#notes}}<li>{{text}}</li>{{/notes}}
+        </ul>
+    </div>
+    {{/hasmessages}}
+
+    <h3>{{#str}} proposedgroups, local_balancedgroups {{/str}}</h3>
+    <div class="row">
+        {{#groups}}
+        <div class="col-sm-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h4 class="h5 card-title">{{name}} <span class="badge bg-secondary text-white">{{size}}</span></h4>
+                    <ul class="list-unstyled mb-0">
+                        {{#members}}<li>{{name}}</li>{{/members}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {{/groups}}
+    </div>
+
+    <h3>{{#str}} balanceheading, local_balancedgroups {{/str}}</h3>
+    <p>{{#str}} balanceintro, local_balancedgroups {{/str}}</p>
+    {{#fields}}
+    <h4 class="h5 mt-3">
+        {{label}} <small class="text-muted">({{kind}}, {{#str}} priority, local_balancedgroups {{/str}} {{priority}})</small>
+        {{#score}}<span class="badge bg-success text-white">{{score}}</span>{{/score}}
+        {{#notbalanced}}<span class="badge bg-light text-dark">{{#str}} notbalanced, local_balancedgroups {{/str}}</span>{{/notbalanced}}
+    </h4>
+    <div class="table-responsive">
+        <table class="table table-sm table-striped generaltable">
+            <thead><tr>{{#columns}}<th scope="col">{{name}}</th>{{/columns}}</tr></thead>
+            <tbody>
+                {{#rows}}<tr>{{#cells}}<td>{{value}}</td>{{/cells}}</tr>{{/rows}}
+                {{#overall}}<tr class="fw-bold font-weight-bold">{{#cells}}<td>{{value}}</td>{{/cells}}</tr>{{/overall}}
+            </tbody>
+        </table>
+    </div>
+    {{/fields}}
+
+    {{#hasproblems}}
+    <div class="alert alert-danger">
+        <ul class="mb-0">{{#problems}}<li>{{text}}</li>{{/problems}}</ul>
+        <p class="mb-0 mt-2">{{#str}} fixnames, local_balancedgroups {{/str}}</p>
+    </div>
+    {{/hasproblems}}
+    {{#nocapability}}
+    <div class="alert alert-info">{{#str}} nomanagegroups, local_balancedgroups {{/str}}</div>
+    {{/nocapability}}
+
+    <div class="d-flex flex-wrap gap-2 mt-3">
+        {{#cancreate}}
+        <form method="post" action="{{actionurl}}" class="me-2 mr-2 mb-2">
+            <input type="hidden" name="sesskey" value="{{sesskey}}">
+            <input type="hidden" name="action" value="create">
+            <button type="submit" class="btn btn-primary">{{createlabel}}</button>
+        </form>
+        {{/cancreate}}
+        <form method="post" action="{{actionurl}}" class="me-2 mr-2 mb-2">
+            <input type="hidden" name="sesskey" value="{{sesskey}}">
+            <input type="hidden" name="action" value="rerun">
+            <button type="submit" class="btn btn-secondary">{{#str}} rerun, local_balancedgroups {{/str}}</button>
+        </form>
+        <a class="btn btn-secondary me-2 mr-2 mb-2" href="{{detailsurl}}">{{#str}} changesettings, local_balancedgroups {{/str}}</a>
+        <a class="btn btn-link mb-2" href="{{reseturl}}">{{#str}} backtostart, local_balancedgroups {{/str}}</a>
+    </div>
+</div>
